@@ -32,7 +32,6 @@ const Register = () => {
   //validate user name
   useEffect(()=>{
     const result = USER_REGEX.test(user);
-    console.log("useEffect username validate")
     console.log("result " + result);
     console.log("user " + user);
     setValidName(result);
@@ -40,14 +39,11 @@ const Register = () => {
 
   // validate password 
   useEffect(()=>{
-    const result = USER_REGEX.test(pwd);
-    console.log("useEffect password validate")
-    console.log(result);
-    console.log(pwd);
+    const result = PWD_REGEX.test(pwd);
     setValidPwd(result);
     const match = pwd === matchPwd; //check password is equal to match password
     setValidMatch(match);
-  },[pwd, matchPwd])
+  },[pwd, matchPwd]) //when password or match password changes
 
   // used to clear any error message when user, pwd or matchPwg change (assumes any msg has been read)
   useEffect(()=>{
@@ -55,7 +51,30 @@ const Register = () => {
     setErrMsg('')
   },[user, pwd, matchPwd])
 
-  return ( 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // in case form button has been enabled with JS hack, ensure password and username are valid
+    const v1 = USER_REGEX.test(user);
+    const v2 = PWD_REGEX.test(pwd);
+    if (!v1 || !v2) {
+        setErrMsg("Invalid Entry");
+        return;
+    }
+    console.log(user, pwd);
+    setSuccess(true);
+    
+  }
+
+  return (
+    <>
+    {success ? (
+        <section>
+            <h1>Success!</h1>
+            <p>
+                <a href="#">Sign In</a>
+            </p>
+        </section>
+    ) : (
     <section>
       <p
         ref={errRef} className={errMsg ? "errmsg" : "offscreen"} 
@@ -63,11 +82,14 @@ const Register = () => {
         >{errMsg}
       </p>
       <h1>Register</h1>
-      <form >
+      {/* onSubmit works with button (lower down) as it is the only button in the form  */}
+      <form onSubmit={handleSubmit}> 
         <label htmlFor="username">
             Username:
-            <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
-            <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} />
+            <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} //show green tick if the username is valid
+            />
+            <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} //hide red x if the username is valid or if there is no username 
+            />
         </label>
         <input
             type="text"
@@ -137,7 +159,15 @@ const Register = () => {
 
         <button disabled={!validName || !validPwd || !validMatch ? true : false}>Sign Up</button>
     </form>
-    </section>
+    <p>
+      Already registered?
+      <br />
+      <span className="line">
+        <a href="#">Sign in</a>
+      </span>
+    </p>
+    </section> )}
+    </>
    );
 }
  
